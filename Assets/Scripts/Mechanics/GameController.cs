@@ -1,8 +1,8 @@
-using Platformer.Core;
-using Platformer.Model;
+using ThrowyBlock.Core;
+using ThrowyBlock.Model;
 using UnityEngine;
 
-namespace Platformer.Mechanics {
+namespace ThrowyBlock.Mechanics {
     /// <summary>
     /// This class exposes the the game model in the inspector, and ticks the
     /// simulation.

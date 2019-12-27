@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Gameplay;
-using UnityEngine;
-using static Platformer.Core.Simulation;
+﻿using UnityEngine;
+using ThrowyBlock.Gameplay;
+using static ThrowyBlock.Core.Simulation;
 
-namespace Platformer.Mechanics {
+namespace ThrowyBlock.Mechanics {
     /// <summary>
     /// DeathZone components mark a collider which will schedule a
     /// PlayerEnteredDeathZone event when the player enters the trigger.

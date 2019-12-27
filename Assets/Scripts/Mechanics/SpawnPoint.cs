@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Platformer.Mechanics {
+namespace ThrowyBlock.Mechanics {
     /// <summary>
     /// Marks a gameobject as a spawnpoint in a scene.
     /// </summary>

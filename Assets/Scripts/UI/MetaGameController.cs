@@ -1,8 +1,8 @@
-using Platformer.Mechanics;
-using Platformer.UI;
+using ThrowyBlock.Mechanics;
+using ThrowyBlock.UI;
 using UnityEngine;
 
-namespace Platformer.UI {
+namespace ThrowyBlock.UI {
     /// <summary>
     /// The MetaGameController is responsible for switching control between the high level
     /// contexts of the application, eg the Main Menu and Gameplay systems.

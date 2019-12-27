@@ -1,12 +1,12 @@
-using Platformer.Core;
-using Platformer.Model;
+using ThrowyBlock.Core;
+using ThrowyBlock.Model;
 
-namespace Platformer.Gameplay {
+namespace ThrowyBlock.Gameplay {
     /// <summary>
     /// This event is fired when user input should be enabled.
     /// </summary>
     public class EnablePlayerInput : Simulation.Event<EnablePlayerInput> {
-        PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public override void Execute() {
             var player = model.player;

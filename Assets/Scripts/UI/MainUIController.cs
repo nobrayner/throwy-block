@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Platformer.UI {
+namespace ThrowyBlock.UI {
     /// <summary>
     /// A simple controller for switching between UI panels.
     /// </summary>

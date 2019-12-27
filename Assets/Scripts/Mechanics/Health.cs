@@ -1,9 +1,9 @@
 using System;
-using Platformer.Gameplay;
+using ThrowyBlock.Gameplay;
 using UnityEngine;
-using static Platformer.Core.Simulation;
+using static ThrowyBlock.Core.Simulation;
 
-namespace Platformer.Mechanics {
+namespace ThrowyBlock.Mechanics {
     /// <summary>
     /// Represebts the current vital statistics of some game entity.
     /// </summary>

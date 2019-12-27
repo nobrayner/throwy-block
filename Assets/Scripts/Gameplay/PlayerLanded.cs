@@ -1,7 +1,7 @@
-using Platformer.Core;
-using Platformer.Mechanics;
+using ThrowyBlock.Core;
+using ThrowyBlock.Mechanics;
 
-namespace Platformer.Gameplay {
+namespace ThrowyBlock.Gameplay {
     /// <summary>
     /// Fired when the player character lands after being airborne.
     /// </summary>

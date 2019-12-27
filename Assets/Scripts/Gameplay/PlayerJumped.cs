@@ -1,7 +1,7 @@
-using Platformer.Core;
-using Platformer.Mechanics;
+using ThrowyBlock.Core;
+using ThrowyBlock.Mechanics;
 
-namespace Platformer.Gameplay {
+namespace ThrowyBlock.Gameplay {
     /// <summary>
     /// Fired when the player performs a Jump.
     /// </summary>
@@ -10,8 +10,8 @@ namespace Platformer.Gameplay {
         public PlayerController player;
 
         public override void Execute() {
-            if(player.audioSource && player.jumpAudio)
-                player.audioSource.PlayOneShot(player.jumpAudio);
+            //if(player.audioSource && player.jumpAudio)
+            //    player.audioSource.PlayOneShot(player.jumpAudio);
         }
     }
 }

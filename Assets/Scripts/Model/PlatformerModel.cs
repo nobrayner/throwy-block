@@ -1,7 +1,7 @@
-using Platformer.Mechanics;
+using ThrowyBlock.Mechanics;
 using UnityEngine;
 
-namespace Platformer.Model {
+namespace ThrowyBlock.Model {
     /// <summary>
     /// The main model containing needed data to implement a platformer style 
     /// game. This class should only contain data, and methods that operate 

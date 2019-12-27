@@ -1,4 +1,4 @@
-﻿namespace Platformer.Core {
+﻿namespace ThrowyBlock.Core {
     public static partial class Simulation {
         /// <summary>
         /// This class provides a container for creating singletons for any other class,

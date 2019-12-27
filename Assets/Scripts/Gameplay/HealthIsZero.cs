@@ -1,8 +1,8 @@
-using Platformer.Core;
-using Platformer.Mechanics;
-using static Platformer.Core.Simulation;
+using ThrowyBlock.Core;
+using ThrowyBlock.Mechanics;
+using static ThrowyBlock.Core.Simulation;
 
-namespace Platformer.Gameplay {
+namespace ThrowyBlock.Gameplay {
     /// <summary>
     /// Fired when the player health reaches 0. This usually would result in a 
     /// PlayerDeath event.

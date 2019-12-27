@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Platformer.View {
+namespace ThrowyBlock.View {
     [System.Serializable]
     [CreateAssetMenu(fileName = "New Animated Tile", menuName = "Tiles/Animated Tile")]
     public class AnimatedTile : TileBase {

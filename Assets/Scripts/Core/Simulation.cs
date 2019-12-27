@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Platformer.Core {
+namespace ThrowyBlock.Core {
     /// <summary>
     /// The Simulation class implements the discrete event simulator pattern.
     /// Events are pooled, with a default capacity of 4 instances.

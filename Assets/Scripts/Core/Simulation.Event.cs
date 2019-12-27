@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Platformer.Core {
+namespace ThrowyBlock.Core {
     public static partial class Simulation {
         /// <summary>
         /// An event is something that happens at a point in time in a simulation.
