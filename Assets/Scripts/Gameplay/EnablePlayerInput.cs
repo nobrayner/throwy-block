@@ -10,7 +10,7 @@ namespace ThrowyBlock.Gameplay {
 
         public override void Execute() {
             var player = model.player;
-            player.controlEnabled = true;
+            player.ControlEnabled = true;
         }
     }
 }

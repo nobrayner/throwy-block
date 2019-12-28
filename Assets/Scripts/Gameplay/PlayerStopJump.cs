@@ -7,7 +7,7 @@ namespace ThrowyBlock.Gameplay {
     /// </summary>
     /// <typeparam name="PlayerStopJump"></typeparam>
     public class PlayerStopJump : Simulation.Event<PlayerStopJump> {
-        public PlayerController player;
+        public PlayerMovement player;
 
         public override void Execute() {
 

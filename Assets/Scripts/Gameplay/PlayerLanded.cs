@@ -7,7 +7,7 @@ namespace ThrowyBlock.Gameplay {
     /// </summary>
     /// <typeparam name="PlayerLanded"></typeparam>
     public class PlayerLanded : Simulation.Event<PlayerLanded> {
-        public PlayerController player;
+        public PlayerMovement player;
 
         public override void Execute() {
 

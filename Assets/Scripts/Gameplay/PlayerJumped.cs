@@ -7,7 +7,7 @@ namespace ThrowyBlock.Gameplay {
     /// </summary>
     /// <typeparam name="PlayerJumped"></typeparam>
     public class PlayerJumped : Simulation.Event<PlayerJumped> {
-        public PlayerController player;
+        public PlayerMovement player;
 
         public override void Execute() {
             //if(player.audioSource && player.jumpAudio)

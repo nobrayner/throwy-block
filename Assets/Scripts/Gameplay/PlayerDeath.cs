@@ -16,12 +16,12 @@ namespace ThrowyBlock.Gameplay {
             var player = model.player;
             //if(player.health.IsAlive) {
             //    player.health.Die();
-                player.controlEnabled = false;
+                player.ControlEnabled = false;
 
                 //if(player.audioSource && player.ouchAudio)
                 //    player.audioSource.PlayOneShot(player.ouchAudio);
                 //player.animator.SetTrigger("hurt");
-                player.animator.SetBool("dead", true);
+                player.Animator.SetBool("dead", true);
                 Simulation.Schedule<PlayerSpawn>(2);
             //}
         }
