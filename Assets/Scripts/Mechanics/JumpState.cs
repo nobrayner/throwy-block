@@ -1,7 +1,10 @@
 ﻿namespace ThrowyBlock.Mechanics {
     public enum JumpState {
-        Grounded,
+        None,
+        Takeoff,
         Jumping,
-        DoubleJumping
+        DoubleJumping,
+        Falling,
+        Landed
     }
 }

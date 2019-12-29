@@ -6,14 +6,19 @@ namespace ThrowyBlock.Mechanics {
         public bool showRaycasts = true;
         public bool ControlEnabled = true;
 
-        [Header("Movement Properties")]
-        [ReadOnly] public bool IsGrounded;
-        [ReadOnly] public bool IsHeadBlocked;
-        [ReadOnly] public bool CanDoubleJump;
-        public float Speed = 4f;
-        public float JumpForce = 18f;
-        public float MaxFallSpeed = -25f;
+        [Header("Status - Readonly")]
+        [ReadOnly] public bool IsGrounded = false;
+        [ReadOnly] public bool IsHeadBlocked = false;
+        [ReadOnly] public bool IsJumping = false;
+        [ReadOnly] public bool CanDoubleJump = false;
         [ReadOnly] public Vector2 Velocity;
+        [ReadOnly] public JumpState JumpState = JumpState.None;
+
+        [Header("Movement Properties")]
+        public float Speed = 4f;
+        public float JumpForce = 22f;
+        public float DoubleJumpForce = 12f;
+        public float MaxFallSpeed = -25f;
 
 
         [Header("Environment Check Properties"), Tooltip("X Offset for Foot Check Raycasts")]
@@ -51,9 +56,13 @@ namespace ThrowyBlock.Mechanics {
 
         // Animator Parameter Hashes
         int movingParamHash;
+        int speedParamHash;
+        int groundedParamHash;
 
         void Start() {
             movingParamHash = Animator.StringToHash("Moving");
+            speedParamHash = Animator.StringToHash("Speed");
+            groundedParamHash = Animator.StringToHash("Grounded");
 
             originalXScale = transform.localScale.x;
 
@@ -68,9 +77,11 @@ namespace ThrowyBlock.Mechanics {
         }
 
         void Update() {
-            //animator.SetBool("grounded", IsGrounded);
-            //animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
-            Animator.SetBool(movingParamHash, Mathf.Abs(Input.Horizontal) > 0.01f);
+            var speed = Mathf.Abs(Input.Horizontal);
+
+            Animator.SetFloat(speedParamHash, speed);
+            Animator.SetBool(movingParamHash, speed > 0f);
+            Animator.SetBool(groundedParamHash, IsGrounded);
         }
 
         void FixedUpdate() {
@@ -85,10 +96,9 @@ namespace ThrowyBlock.Mechanics {
         }
 
         void PhysicsCheck() {
-            // Assumbe the player isn't grounded, their head is not blocked, and they can't double-jump
+            // Assumbe the player isn't grounded, their head is not blocked
             IsGrounded = false;
             IsHeadBlocked = false;
-            CanDoubleJump = false;
 
             // Check Left and Right foot for grounding
             RaycastHit2D leftCheck = Raycast(new Vector2(-FootOffset, -(BodyCollider.size.y / 2)), Vector2.down, GroundDistance);
@@ -96,6 +106,8 @@ namespace ThrowyBlock.Mechanics {
 
             if (leftCheck || rightCheck) {
                 IsGrounded = true;
+                IsJumping = false;
+                CanDoubleJump = true;
             }
 
             // Check above the player's head
@@ -104,8 +116,6 @@ namespace ThrowyBlock.Mechanics {
             if (headCheck) {
                 IsHeadBlocked = true;
             }
-
-            // TODO: Double-Jump checks
         }
 
         void GroundMovement() {
@@ -119,10 +129,21 @@ namespace ThrowyBlock.Mechanics {
         }
 
         void JumpMovement() {
-            if(IsGrounded && Input.JumpPressed) {
-                IsGrounded = false;
-                Rigidbody.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
+            if(Input.JumpPressed) {
+                if((IsGrounded && !IsJumping) || (JumpState == JumpState.Falling && !IsJumping)) {
+                    IsGrounded = false;
+                    IsJumping = true;
+                    JumpState = JumpState.Takeoff;
+                    Rigidbody.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
+                } else if(!IsGrounded && CanDoubleJump && (JumpState == JumpState.Jumping || JumpState == JumpState.Falling)) {
+                    CanDoubleJump = false;
+                    JumpState = JumpState.DoubleJumping;
+                    Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, 0); // We want the double-jump force to override the original jump
+                    Rigidbody.AddForce(new Vector2(0f, DoubleJumpForce), ForceMode2D.Impulse);
+                }
             }
+
+            UpdateJumpState();
 
             // Cap to Max Fall Speed
             if(Rigidbody.velocity.y < MaxFallSpeed) {
@@ -130,17 +151,38 @@ namespace ThrowyBlock.Mechanics {
             }
         }
 
+        void UpdateJumpState() {
+            switch(JumpState) {
+                case JumpState.Takeoff:
+                    if(!IsGrounded) {
+                        JumpState = JumpState.Jumping;
+                    }
+                    break;
+                case JumpState.None:
+                case JumpState.Jumping:
+                case JumpState.DoubleJumping:
+                    if (Rigidbody.velocity.y < 0f) {
+                        JumpState = JumpState.Falling;
+                    }
+                    break;
+                case JumpState.Falling:
+                    if(IsGrounded) {
+                        //Schedule<PlayerLanded>().player = this;
+                        JumpState = JumpState.Landed;
+                    }
+                    break;
+                case JumpState.Landed:
+                    JumpState = JumpState.None;
+                    break;
+            }
+        }
+
         void ChangeDirection() {
-            //Turn the character by flipping the direction
             direction *= -1;
 
-            //Record the current scale
             Vector3 scale = transform.localScale;
-
-            //Set the X scale to be the original times the direction
             scale.x = originalXScale * direction;
 
-            //Apply the new scale
             transform.localScale = scale;
         }
 
