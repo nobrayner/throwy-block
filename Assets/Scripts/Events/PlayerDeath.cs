@@ -1,19 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using ThrowyBlock.Core;
+﻿using ThrowyBlock.Core;
+using ThrowyBlock.Mechanics;
 using ThrowyBlock.Model;
-using UnityEngine;
 
-namespace ThrowyBlock.Gameplay {
+namespace ThrowyBlock.Events {
     /// <summary>
     /// Fired when the player has died.
     /// </summary>
     /// <typeparam name="PlayerDeath"></typeparam>
     public class PlayerDeath : Simulation.Event<PlayerDeath> {
-        readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        public PlayerInfo PlayerInfo;
+
+        readonly MapModel model = Simulation.GetModel<MapModel>();
 
         public override void Execute() {
-            var player = model.player;
+            var player = model.GetPlayer(PlayerInfo);
             //if(player.health.IsAlive) {
             //    player.health.Die();
                 player.ControlEnabled = false;

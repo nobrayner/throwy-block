@@ -1,41 +1,29 @@
-﻿using ThrowyBlock.UnityEditor;
+﻿using ThrowyBlock.Core;
+using ThrowyBlock.Model;
+using ThrowyBlock.UnityEditor;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace ThrowyBlock.Mechanics {
-    public class PlayerMovement : MonoBehaviour {
+    public class CharacterMovement : MonoBehaviour {
         public bool showRaycasts = true;
         public bool ControlEnabled = true;
 
-        [Header("Status - Readonly")]
+        [Header("Status - Movement")]
         [ReadOnly] public bool IsGrounded = false;
-        [ReadOnly] public bool IsHeadBlocked = false;
         [ReadOnly] public bool IsJumping = false;
         [ReadOnly] public bool CanDoubleJump = false;
         [ReadOnly] public Vector2 Velocity;
         [ReadOnly] public JumpState JumpState = JumpState.None;
-
-        [Header("Movement Properties")]
-        public float Speed = 4f;
-        public float JumpForce = 22f;
-        public float DoubleJumpForce = 12f;
-        public float MaxFallSpeed = -25f;
+        [ReadOnly] public int Facing = 1;
 
 
-        [Header("Environment Check Properties"), Tooltip("X Offset for Foot Check Raycasts")]
-        public float FootOffset = .4f;
-        
-        [Tooltip("Space needed above the player's head")]
-        public float HeadClearance = .5f;
-        
-        [Tooltip("The distance from the ground that counts as being grounded")]
-        public float GroundDistance = .2f;
-        public LayerMask GroundLayer;
+        [Header("Status - Block")]
+        [ReadOnly] public bool IsHoldingBlock = false;
+        [ReadOnly] public bool IsValidPickupBlock = false;
+        [ReadOnly] public Vector3Int? PickupBlockPosition;
+        [ReadOnly] public Sprite HeldBlockSprite;
 
-
-        [Header("Components")]
-        public Rigidbody2D Rigidbody;
-        public BoxCollider2D BodyCollider;
-        public PlayerInput Input;
 
         //[Header("Audio")]
         //public AudioClip jumpAudio;
@@ -44,40 +32,68 @@ namespace ThrowyBlock.Mechanics {
         //public AudioSource audioSource;
 
         //public Health health;
-        public Bounds Bounds => BodyCollider.bounds;
 
-        SpriteRenderer SpriteRenderer;
-        internal Animator Animator;
 
-        //readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        [Header("Movement Properties")]
+        public float Speed = 4f;
+        public float JumpForce = 22f;
+        public float DoubleJumpForce = 12f;
+        public float FallSpeedModifier = 1.5f;
+        public float MaxFallSpeed = -25f;
 
-        float originalXScale;                   //Original scale on X axis
-        [ReadOnly] public int direction = 1;	//Direction player is facing
+
+        [Header("Environment Check Properties"), Tooltip("X Offset for Foot Check Raycasts")]
+        public float FootOffset = .4f;
+
+        [Tooltip("Distance of raycast for Block-checking")]
+        public float BlockCheckDistance = 1f;
+
+        [Tooltip("The distance from the ground that counts as being grounded")]
+        public float GroundDistance = .2f;
+        public LayerMask GroundLayer;
+
+
+        [Header("Components - Loaded on Start")]
+        [ReadOnly] public Animator Animator;
+        [ReadOnly] public Rigidbody2D Rigidbody;
+        [ReadOnly] public BoxCollider2D BodyCollider;
+        [ReadOnly] public PlayerInput Input;
+        
+
+        [Header("Components - Inspector Set")]
+        public Animator MonocleAnimator;
+        public GameObject Projectile;
+
+
+        readonly MapModel model = Simulation.GetModel<MapModel>();
+        float originalXScale;
 
         // Animator Parameter Hashes
         int movingParamHash;
         int speedParamHash;
         int groundedParamHash;
 
+        int flashMonocleParamHash;
+
         void Start() {
             movingParamHash = Animator.StringToHash("Moving");
             speedParamHash = Animator.StringToHash("Speed");
             groundedParamHash = Animator.StringToHash("Grounded");
 
+            flashMonocleParamHash = Animator.StringToHash("FlashMonocle");
+
             originalXScale = transform.localScale.x;
 
             //health = GetComponent<Health>();
             //audioSource = GetComponent<AudioSource>();
+            Animator = GetComponent<Animator>();
             Rigidbody = GetComponent<Rigidbody2D>();
             BodyCollider = GetComponent<BoxCollider2D>();
-            SpriteRenderer = GetComponent<SpriteRenderer>();
-            Animator = GetComponent<Animator>();
-
             Input = GetComponent<PlayerInput>();
         }
 
         void Update() {
-            var speed = Mathf.Abs(Input.Horizontal);
+            var speed = Mathf.Abs(Input.DirectionVector.x);
 
             Animator.SetFloat(speedParamHash, speed);
             Animator.SetBool(movingParamHash, speed > 0f);
@@ -88,40 +104,86 @@ namespace ThrowyBlock.Mechanics {
             // Physics check first
             PhysicsCheck();
 
-            // Apply Player Input as movements
-            GroundMovement();
-            JumpMovement();
+            if(ControlEnabled) {
+                // Apply Player Input as actions and movements
+                Actions();
+                GroundMovement();
+                JumpMovement();
+            } else {
+                Rigidbody.velocity = new Vector2(0f, Rigidbody.velocity.y);
+            }
 
             Velocity = Rigidbody.velocity;
         }
 
         void PhysicsCheck() {
-            // Assumbe the player isn't grounded, their head is not blocked
+            // Assume the player isn't grounded, block in range is not a valid block, there is no block at the pickup position
             IsGrounded = false;
-            IsHeadBlocked = false;
+            IsValidPickupBlock = false;
+            PickupBlockPosition = null;
+
 
             // Check Left and Right foot for grounding
             RaycastHit2D leftCheck = Raycast(new Vector2(-FootOffset, -(BodyCollider.size.y / 2)), Vector2.down, GroundDistance);
             RaycastHit2D rightCheck = Raycast(new Vector2(FootOffset, -(BodyCollider.size.y / 2)), Vector2.down, GroundDistance);
 
-            if (leftCheck || rightCheck) {
+            if(leftCheck || rightCheck) {
                 IsGrounded = true;
                 IsJumping = false;
                 CanDoubleJump = true;
             }
 
-            // Check above the player's head
-            RaycastHit2D headCheck = Raycast(new Vector2(0f, (BodyCollider.size.y / 2) - 0.08f), Vector2.up, HeadClearance);
+            // Check for the pick-up-able block
+            var modifier = 1f + ((Mathf.Abs(Input.DirectionVector.x) + Mathf.Abs(Input.DirectionVector.y)) / 4);
+            float checkDistance = BlockCheckDistance * modifier;
+            RaycastHit2D blockCheck = Raycast(new Vector2(0f, 0f), Input.DirectionVector.normalized, checkDistance);
 
-            if (headCheck) {
-                IsHeadBlocked = true;
+            if(blockCheck) {
+                var remainingRay = ((Input.DirectionVector.normalized * checkDistance) * (1f - blockCheck.fraction));
+                var pickupBlockPoint = blockCheck.point + remainingRay;
+                PickupBlockPosition = model.GroundMap.WorldToCell(new Vector3(pickupBlockPoint.x, pickupBlockPoint.y));
+                IsValidPickupBlock = true;
+            }
+        }
+
+        void Actions() {
+            if(Input.PickupBlockPressed) {
+                // Throw Block Action
+                if(IsHoldingBlock) {
+                    var projectile = Instantiate(Projectile);
+                    projectile.transform.position = new Vector3(transform.position.x + Facing, transform.position.y, transform.position.z);
+                    projectile.transform.localScale = new Vector3(0.5f * -Facing, 0.5f, transform.localScale.z);
+                    projectile.GetComponent<Rigidbody2D>().velocity = new Vector2(Facing, 0f);
+                    projectile.GetComponent<SpriteRenderer>().sprite = HeldBlockSprite;
+
+                    IsHoldingBlock = false;
+                    HeldBlockSprite = null;
+                }
+                // Pickup Block Action
+                else if(!IsHoldingBlock && IsValidPickupBlock) {
+                    var tile = model.GroundMap.GetTile<Tile>((Vector3Int)PickupBlockPosition);
+
+                    if(tile != null) {
+                        IsHoldingBlock = true;
+                        HeldBlockSprite = tile.sprite;
+
+                        // Clear the block from the map
+                        model.GroundMap.SetTile((Vector3Int)PickupBlockPosition, null);
+                    }
+                }
+            }
+
+            // Deflect Action
+            if(Input.DeflectPressed) {
+                // Do Deflect Action
+                MonocleAnimator.SetTrigger(flashMonocleParamHash);
             }
         }
 
         void GroundMovement() {
-            var xVelocity = Speed * Input.Horizontal;
+            var xVelocity = Speed * Input.DirectionVector.x;
 
-            if(xVelocity * direction < 0f) {
+            if(xVelocity * Facing < 0f) {
                 ChangeDirection();
             }
 
@@ -143,6 +205,10 @@ namespace ThrowyBlock.Mechanics {
                 }
             }
 
+            if(JumpState == JumpState.Falling && Input.DirectionVector.y <= -0.9f) {
+                Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, Rigidbody.velocity.y * FallSpeedModifier);
+            }
+
             UpdateJumpState();
 
             // Cap to Max Fall Speed
@@ -161,7 +227,7 @@ namespace ThrowyBlock.Mechanics {
                 case JumpState.None:
                 case JumpState.Jumping:
                 case JumpState.DoubleJumping:
-                    if (Rigidbody.velocity.y < 0f) {
+                    if(Rigidbody.velocity.y < 0f) {
                         JumpState = JumpState.Falling;
                     }
                     break;
@@ -178,10 +244,10 @@ namespace ThrowyBlock.Mechanics {
         }
 
         void ChangeDirection() {
-            direction *= -1;
+            Facing *= -1;
 
             Vector3 scale = transform.localScale;
-            scale.x = originalXScale * direction;
+            scale.x = originalXScale * Facing;
 
             transform.localScale = scale;
         }

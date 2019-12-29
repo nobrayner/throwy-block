@@ -1,5 +1,5 @@
 using System;
-using ThrowyBlock.Gameplay;
+using ThrowyBlock.Events;
 using UnityEngine;
 using static ThrowyBlock.Core.Simulation;
 

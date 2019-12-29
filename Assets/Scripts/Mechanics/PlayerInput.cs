@@ -4,9 +4,14 @@ using UnityEngine;
 namespace ThrowyBlock.Mechanics {
     [DefaultExecutionOrder(-100)]
     public class PlayerInput : MonoBehaviour {
-        [ReadOnly] public float Horizontal;
+        [ReadOnly] public Vector2 DirectionVector;
         [ReadOnly] public bool JumpPressed;
+        [ReadOnly] public bool PickupBlockPressed;
+        [ReadOnly] public bool DeflectPressed;
         [HideInInspector] public PlayerInfo PlayerInfo;
+
+        float Horizontal;
+        float Vertical;
 
         bool readyToClear;
 
@@ -22,6 +27,8 @@ namespace ThrowyBlock.Mechanics {
             ProcessInputs();
 
             Horizontal = Mathf.Clamp(Horizontal, -1f, 1f);
+            Vertical = Mathf.Clamp(Vertical, -1f, 1f);
+            DirectionVector = Vector2.ClampMagnitude(DirectionVector, 1f);
         }
 
         void FixedUpdate() {
@@ -33,16 +40,27 @@ namespace ThrowyBlock.Mechanics {
                 return;
             }
 
+            // Clear inputs
             Horizontal = 0f;
-            JumpPressed = false;
+            Vertical = 0f;
+            DirectionVector = Vector2.zero;
 
+            JumpPressed = false;
+            PickupBlockPressed = false;
+            DeflectPressed = false;
+
+            // Reset clear flag
             readyToClear = false;
         }
 
         void ProcessInputs() {
             Horizontal += Input.GetAxis("Horizontal" + PlayerInfo.PlayerNumber);
+            Vertical += Input.GetAxis("Vertical" + PlayerInfo.PlayerNumber);
+            DirectionVector = new Vector2(Horizontal, Vertical);
 
             JumpPressed = JumpPressed || Input.GetButtonDown("Jump" + PlayerInfo.PlayerNumber);
+            PickupBlockPressed = PickupBlockPressed || Input.GetButtonDown("PickUp" + PlayerInfo.PlayerNumber);
+            DeflectPressed = DeflectPressed || Input.GetButtonDown("Block" + PlayerInfo.PlayerNumber);
         }
     }
 }
