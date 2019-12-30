@@ -58,6 +58,14 @@ namespace ThrowyBlock.Mechanics {
         void ProcessInputs() {
             Horizontal += Input.GetAxis("Horizontal" + PlayerInfo.PlayerNumber);
             Vertical += Input.GetAxis("Vertical" + PlayerInfo.PlayerNumber);
+
+            if (Horizontal == 0f) {
+                Horizontal += Input.GetAxis("HorizontalKeyboardInput");
+            }
+            if (Vertical == 0f) {
+                Vertical += Input.GetAxis("VerticalKeyboardInput");
+            }
+
             DirectionVector = new Vector2(Horizontal, Vertical);
 
             JumpPressed = JumpPressed || Input.GetButtonDown("Jump" + PlayerInfo.PlayerNumber);
