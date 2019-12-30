@@ -5,6 +5,7 @@ namespace ThrowyBlock.Mechanics {
     [DefaultExecutionOrder(-100)]
     public class PlayerInput : MonoBehaviour {
         [ReadOnly] public Vector2 DirectionVector;
+        [ReadOnly] public Vector2 NormalizedDirection;
         [ReadOnly] public bool JumpPressed;
         [ReadOnly] public bool PickupBlockPressed;
         [ReadOnly] public bool DeflectPressed;
@@ -29,6 +30,7 @@ namespace ThrowyBlock.Mechanics {
             Horizontal = Mathf.Clamp(Horizontal, -1f, 1f);
             Vertical = Mathf.Clamp(Vertical, -1f, 1f);
             DirectionVector = Vector2.ClampMagnitude(DirectionVector, 1f);
+            NormalizedDirection = DirectionVector.normalized;
         }
 
         void FixedUpdate() {
@@ -60,7 +62,7 @@ namespace ThrowyBlock.Mechanics {
 
             JumpPressed = JumpPressed || Input.GetButtonDown("Jump" + PlayerInfo.PlayerNumber);
             PickupBlockPressed = PickupBlockPressed || Input.GetButtonDown("PickUp" + PlayerInfo.PlayerNumber);
-            DeflectPressed = DeflectPressed || Input.GetButtonDown("Block" + PlayerInfo.PlayerNumber);
+            DeflectPressed = DeflectPressed || Input.GetButtonDown("Punch" + PlayerInfo.PlayerNumber);
         }
     }
 }

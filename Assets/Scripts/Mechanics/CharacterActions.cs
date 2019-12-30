@@ -1,11 +1,12 @@
 ﻿using ThrowyBlock.Core;
+using ThrowyBlock.Events;
 using ThrowyBlock.Model;
 using ThrowyBlock.UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace ThrowyBlock.Mechanics {
-    public class CharacterMovement : MonoBehaviour {
+    public class CharacterActions : MonoBehaviour {
         public bool showRaycasts = true;
         public bool ControlEnabled = true;
 
@@ -19,10 +20,10 @@ namespace ThrowyBlock.Mechanics {
 
 
         [Header("Status - Block")]
-        [ReadOnly] public bool IsHoldingBlock = false;
+        /*[ReadOnly]*/ public bool IsHoldingBlock = true;
         [ReadOnly] public bool IsValidPickupBlock = false;
         [ReadOnly] public Vector3Int? PickupBlockPosition;
-        [ReadOnly] public Sprite HeldBlockSprite;
+        /*[ReadOnly]*/ public Sprite HeldBlockSprite;
 
 
         //[Header("Audio")]
@@ -38,8 +39,15 @@ namespace ThrowyBlock.Mechanics {
         public float Speed = 4f;
         public float JumpForce = 22f;
         public float DoubleJumpForce = 12f;
+
+        [Tooltip("The multiplier added to fall speed when pressing down")]
         public float FallSpeedModifier = 1.5f;
         public float MaxFallSpeed = -25f;
+
+        [Tooltip("The amount of force to throw the held block with")]
+        public float ThrowForce = 22f;
+        public Vector3 ThrowOffset = new Vector3(0.4f, 0.4f);
+        public float ThrowKnockbackMultiplier = 0.6f;
 
 
         [Header("Environment Check Properties"), Tooltip("X Offset for Foot Check Raycasts")]
@@ -107,11 +115,12 @@ namespace ThrowyBlock.Mechanics {
             if(ControlEnabled) {
                 // Apply Player Input as actions and movements
                 Actions();
-                GroundMovement();
+                XMovement();
                 JumpMovement();
-            } else {
-                Rigidbody.velocity = new Vector2(0f, Rigidbody.velocity.y);
             }
+            //else {
+            //    Rigidbody.velocity = new Vector2(0f, Rigidbody.velocity.y);
+            //}
 
             Velocity = Rigidbody.velocity;
         }
@@ -136,10 +145,10 @@ namespace ThrowyBlock.Mechanics {
             // Check for the pick-up-able block
             var modifier = 1f + ((Mathf.Abs(Input.DirectionVector.x) + Mathf.Abs(Input.DirectionVector.y)) / 4);
             float checkDistance = BlockCheckDistance * modifier;
-            RaycastHit2D blockCheck = Raycast(new Vector2(0f, 0f), Input.DirectionVector.normalized, checkDistance);
+            RaycastHit2D blockCheck = Raycast(new Vector2(0f, 0f), Input.NormalizedDirection, checkDistance);
 
             if(blockCheck) {
-                var remainingRay = ((Input.DirectionVector.normalized * checkDistance) * (1f - blockCheck.fraction));
+                var remainingRay = ((Input.NormalizedDirection * checkDistance) * (1f - blockCheck.fraction));
                 var pickupBlockPoint = blockCheck.point + remainingRay;
                 PickupBlockPosition = model.GroundMap.WorldToCell(new Vector3(pickupBlockPoint.x, pickupBlockPoint.y));
                 IsValidPickupBlock = true;
@@ -150,27 +159,32 @@ namespace ThrowyBlock.Mechanics {
             if(Input.PickupBlockPressed) {
                 // Throw Block Action
                 if(IsHoldingBlock) {
-                    var projectile = Instantiate(Projectile);
-                    projectile.transform.position = new Vector3(transform.position.x + Facing, transform.position.y, transform.position.z);
-                    projectile.transform.localScale = new Vector3(0.5f * -Facing, 0.5f, transform.localScale.z);
-                    projectile.GetComponent<Rigidbody2D>().velocity = new Vector2(Facing, 0f);
-                    projectile.GetComponent<SpriteRenderer>().sprite = HeldBlockSprite;
+                    var throwForce = Input.NormalizedDirection * ThrowForce;
 
-                    IsHoldingBlock = false;
-                    HeldBlockSprite = null;
+                    // Knockback player from the throw
+                    if(!IsGrounded || Input.NormalizedDirection.y > -.2f) {
+                        Rigidbody.AddForce(-throwForce * ThrowKnockbackMultiplier, ForceMode2D.Impulse);
+                        var spawnEvent = Simulation.Schedule<SpawnThrownBlock>(0);
+
+                        var spawnPosition = transform.position + Vector3.Scale(ThrowOffset, new Vector3(Input.NormalizedDirection.x, Input.NormalizedDirection.y));
+                        spawnEvent.SetSpawnDetails(Projectile, throwForce, Input.NormalizedDirection, transform, HeldBlockSprite);
+                    }
+
+                    //IsHoldingBlock = false;
+                    //HeldBlockSprite = null;
                 }
                 // Pickup Block Action
-                else if(!IsHoldingBlock && IsValidPickupBlock) {
-                    var tile = model.GroundMap.GetTile<Tile>((Vector3Int)PickupBlockPosition);
+                //else if(!IsHoldingBlock && IsValidPickupBlock) {
+                //    var tile = model.GroundMap.GetTile<Tile>((Vector3Int)PickupBlockPosition);
 
-                    if(tile != null) {
-                        IsHoldingBlock = true;
-                        HeldBlockSprite = tile.sprite;
+                //    if(tile != null) {
+                //        IsHoldingBlock = true;
+                //        HeldBlockSprite = tile.sprite;
 
-                        // Clear the block from the map
-                        model.GroundMap.SetTile((Vector3Int)PickupBlockPosition, null);
-                    }
-                }
+                //        // Clear the block from the map
+                //        model.GroundMap.SetTile((Vector3Int)PickupBlockPosition, null);
+                //    }
+                //}
             }
 
             // Deflect Action
@@ -180,23 +194,21 @@ namespace ThrowyBlock.Mechanics {
             }
         }
 
-        void GroundMovement() {
+        void XMovement() {
             var xVelocity = Speed * Input.DirectionVector.x;
 
             if(xVelocity * Facing < 0f) {
                 ChangeDirection();
             }
 
-            Rigidbody.velocity = new Vector2(xVelocity, Rigidbody.velocity.y);
+            var xForce = Rigidbody.velocity.x + xVelocity;
+            Rigidbody.AddForce(new Vector2(xForce, Rigidbody.velocity.y), ForceMode2D.Force);
         }
 
         void JumpMovement() {
             if(Input.JumpPressed) {
                 if((IsGrounded && !IsJumping) || (JumpState == JumpState.Falling && !IsJumping)) {
-                    IsGrounded = false;
-                    IsJumping = true;
-                    JumpState = JumpState.Takeoff;
-                    Rigidbody.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
+                    DoJump();
                 } else if(!IsGrounded && CanDoubleJump && (JumpState == JumpState.Jumping || JumpState == JumpState.Falling)) {
                     CanDoubleJump = false;
                     JumpState = JumpState.DoubleJumping;
@@ -205,6 +217,7 @@ namespace ThrowyBlock.Mechanics {
                 }
             }
 
+            // Increase fall speed when pressing down
             if(JumpState == JumpState.Falling && Input.DirectionVector.y <= -0.9f) {
                 Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, Rigidbody.velocity.y * FallSpeedModifier);
             }
@@ -215,6 +228,13 @@ namespace ThrowyBlock.Mechanics {
             if(Rigidbody.velocity.y < MaxFallSpeed) {
                 Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, MaxFallSpeed);
             }
+        }
+
+        void DoJump() {
+            IsGrounded = false;
+            IsJumping = true;
+            JumpState = JumpState.Takeoff;
+            Rigidbody.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
         }
 
         void UpdateJumpState() {

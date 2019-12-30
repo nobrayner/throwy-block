@@ -8,13 +8,13 @@ namespace ThrowyBlock.Model {
     public class MapModel {
         public Tilemap GroundMap;
 
-        public CharacterMovement[] Players;
+        public CharacterActions[] Players;
 
         public Transform[] SpawnPoints;
 
         public Transform RespawnPoint;
 
-        public CharacterMovement GetPlayer(PlayerInfo playerInfo) {
+        public CharacterActions GetPlayer(PlayerInfo playerInfo) {
             return Players.Where(e => e.GetComponent<PlayerInfo>() == playerInfo).FirstOrDefault();
         }
     }
