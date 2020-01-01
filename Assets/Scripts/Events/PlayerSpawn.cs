@@ -21,7 +21,7 @@ namespace ThrowyBlock.Events {
             player.Teleport(model.RespawnPoint.transform.position);
             //player.CharacterState = PlayerMovement.CharacterState.Grounded;
             //player.Animator.SetBool("dead", false);
-            Simulation.Schedule<EnablePlayerInput>(2f);
+            Simulation.Schedule<EnableAllPlayerInput>(2f);
         }
     }
 }

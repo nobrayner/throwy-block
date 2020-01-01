@@ -14,7 +14,7 @@ namespace ThrowyBlock.Mechanics {
         [ReadOnly] public bool IsGrounded = false;
         [ReadOnly] public bool IsJumping = false;
         [ReadOnly] public bool CanDoubleJump = false;
-        [ReadOnly] public Vector2 Velocity;
+        [ReadOnly] public Vector2 TargetVelocity;
         [ReadOnly] public JumpState JumpState = JumpState.None;
         [ReadOnly] public int Facing = 1;
 
@@ -46,8 +46,9 @@ namespace ThrowyBlock.Mechanics {
 
         [Tooltip("The amount of force to throw the held block with")]
         public float ThrowForce = 22f;
-        public Vector3 ThrowOffset = new Vector3(0.4f, 0.4f);
-        public float ThrowKnockbackMultiplier = 0.6f;
+        public Vector3 ThrowOffset = new Vector3(.4f, .4f);
+        public float ThrowKnockbackMultiplier = .6f;
+        public float ThrowKnockbackStunDuration = .1f;
 
 
         [Header("Environment Check Properties"), Tooltip("X Offset for Foot Check Raycasts")]
@@ -109,6 +110,8 @@ namespace ThrowyBlock.Mechanics {
         }
 
         void FixedUpdate() {
+            TargetVelocity = Rigidbody.velocity;
+
             // Physics check first
             PhysicsCheck();
 
@@ -122,7 +125,7 @@ namespace ThrowyBlock.Mechanics {
             //    Rigidbody.velocity = new Vector2(0f, Rigidbody.velocity.y);
             //}
 
-            Velocity = Rigidbody.velocity;
+            Rigidbody.velocity = TargetVelocity;
         }
 
         void PhysicsCheck() {
@@ -133,8 +136,8 @@ namespace ThrowyBlock.Mechanics {
 
 
             // Check Left and Right foot for grounding
-            RaycastHit2D leftCheck = Raycast(new Vector2(-FootOffset, -(BodyCollider.size.y / 2)), Vector2.down, GroundDistance);
-            RaycastHit2D rightCheck = Raycast(new Vector2(FootOffset, -(BodyCollider.size.y / 2)), Vector2.down, GroundDistance);
+            RaycastHit2D leftCheck = Raycast(new Vector2(-FootOffset, -.5f), Vector2.down, GroundDistance);
+            RaycastHit2D rightCheck = Raycast(new Vector2(FootOffset, -.5f), Vector2.down, GroundDistance);
 
             if(leftCheck || rightCheck) {
                 IsGrounded = true;
@@ -145,7 +148,7 @@ namespace ThrowyBlock.Mechanics {
             // Check for the pick-up-able block
             var modifier = 1f + ((Mathf.Abs(Input.DirectionVector.x) + Mathf.Abs(Input.DirectionVector.y)) / 4);
             float checkDistance = BlockCheckDistance * modifier;
-            RaycastHit2D blockCheck = Raycast(new Vector2(0f, 0f), Input.NormalizedDirection, checkDistance);
+            RaycastHit2D blockCheck = Raycast(Vector2.zero, Input.NormalizedDirection, checkDistance);
 
             if(blockCheck) {
                 var remainingRay = ((Input.NormalizedDirection * checkDistance) * (1f - blockCheck.fraction));
@@ -158,16 +161,19 @@ namespace ThrowyBlock.Mechanics {
         void Actions() {
             if(Input.PickupBlockPressed) {
                 // Throw Block Action
-                if(IsHoldingBlock) {
+                if(IsHoldingBlock && Input.NormalizedDirection.magnitude > 0) {
                     var throwForce = Input.NormalizedDirection * ThrowForce;
 
                     // Knockback player from the throw
-                    if(!IsGrounded || Input.NormalizedDirection.y > -.2f) {
-                        Rigidbody.AddForce(-throwForce * ThrowKnockbackMultiplier, ForceMode2D.Impulse);
+                    if(!IsGrounded || !IsValidPickupBlock) {
+                        TargetVelocity = Vector2.zero;
+                        AddForce(-throwForce * ThrowKnockbackMultiplier);
                         var spawnEvent = Simulation.Schedule<SpawnThrownBlock>(0);
 
-                        var spawnPosition = transform.position + Vector3.Scale(ThrowOffset, new Vector3(Input.NormalizedDirection.x, Input.NormalizedDirection.y));
                         spawnEvent.SetSpawnDetails(Projectile, throwForce, Input.NormalizedDirection, transform, HeldBlockSprite);
+
+                        Simulation.Schedule<DisablePlayerInput>(0).SetPlayer(this);
+                        Simulation.Schedule<EnablePlayerInput>(ThrowKnockbackStunDuration).SetPlayer(this);
                     }
 
                     //IsHoldingBlock = false;
@@ -195,46 +201,50 @@ namespace ThrowyBlock.Mechanics {
         }
 
         void XMovement() {
-            var xVelocity = Speed * Input.DirectionVector.x;
+            var inputSpeed = Speed * Input.DirectionVector.x;
+            var targetXVelocity = TargetVelocity.x;
 
-            if(xVelocity * Facing < 0f) {
-                ChangeDirection();
+            if(ControlEnabled && Mathf.Abs(TargetVelocity.x) < Speed) {
+                targetXVelocity = inputSpeed;
+
+                if(inputSpeed * Facing < 0f) {
+                    ChangeDirection();
+                }
+            } else {
+                targetXVelocity = TargetVelocity.x;
             }
 
-            var xForce = Rigidbody.velocity.x + xVelocity;
-            Rigidbody.AddForce(new Vector2(xForce, Rigidbody.velocity.y), ForceMode2D.Force);
+            TargetVelocity = new Vector2(targetXVelocity, TargetVelocity.y);
         }
 
         void JumpMovement() {
             if(Input.JumpPressed) {
                 if((IsGrounded && !IsJumping) || (JumpState == JumpState.Falling && !IsJumping)) {
-                    DoJump();
+                    IsGrounded = false;
+                    IsJumping = true;
+                    JumpState = JumpState.Takeoff;
+                    AddForce(new Vector2(0f, JumpForce));
                 } else if(!IsGrounded && CanDoubleJump && (JumpState == JumpState.Jumping || JumpState == JumpState.Falling)) {
                     CanDoubleJump = false;
                     JumpState = JumpState.DoubleJumping;
-                    Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, 0); // We want the double-jump force to override the original jump
-                    Rigidbody.AddForce(new Vector2(0f, DoubleJumpForce), ForceMode2D.Impulse);
+                    TargetVelocity = new Vector2(TargetVelocity.x, 0); // We want the double-jump force to override the original jump
+                    AddForce(new Vector2(0f, DoubleJumpForce));
                 }
             }
 
+            // TODO Wall Jump
+
             // Increase fall speed when pressing down
-            if(JumpState == JumpState.Falling && Input.DirectionVector.y <= -0.9f) {
-                Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, Rigidbody.velocity.y * FallSpeedModifier);
+            if(JumpState == JumpState.Falling && Input.DirectionVector.y <= -0.7f) {
+                TargetVelocity = new Vector2(TargetVelocity.x, TargetVelocity.y * FallSpeedModifier);
             }
 
             UpdateJumpState();
 
             // Cap to Max Fall Speed
-            if(Rigidbody.velocity.y < MaxFallSpeed) {
-                Rigidbody.velocity = new Vector2(Rigidbody.velocity.x, MaxFallSpeed);
+            if(TargetVelocity.y < MaxFallSpeed) {
+                TargetVelocity = new Vector2(TargetVelocity.x, MaxFallSpeed);
             }
-        }
-
-        void DoJump() {
-            IsGrounded = false;
-            IsJumping = true;
-            JumpState = JumpState.Takeoff;
-            Rigidbody.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
         }
 
         void UpdateJumpState() {
@@ -247,7 +257,7 @@ namespace ThrowyBlock.Mechanics {
                 case JumpState.None:
                 case JumpState.Jumping:
                 case JumpState.DoubleJumping:
-                    if(Rigidbody.velocity.y < 0f) {
+                    if(TargetVelocity.y < 0f) {
                         JumpState = JumpState.Falling;
                     }
                     break;
@@ -274,7 +284,11 @@ namespace ThrowyBlock.Mechanics {
 
         public void Teleport(Vector3 position) {
             Rigidbody.position = position;
-            Rigidbody.velocity *= 0;
+            TargetVelocity *= 0;
+        }
+
+        void AddForce(Vector2 force) {
+            TargetVelocity += force;
         }
 
         //These two Raycast methods wrap the Physics2D.Raycast() and provide some extra
