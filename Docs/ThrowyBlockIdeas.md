@@ -98,6 +98,7 @@ Characters
 Locations
 
 | Name | Description |
+|------|-------------|
 | Percy's Village | Located high on the mountains. |
 | Stahv's Village | Located at the base of the mountains. |
 | Lord Silgourmon's Lair | Located on the top of Mount Goom. |
