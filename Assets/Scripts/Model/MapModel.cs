@@ -6,13 +6,20 @@ using UnityEngine.Tilemaps;
 namespace ThrowyBlock.Model {
     [System.Serializable]
     public class MapModel {
-        public Tilemap GroundMap;
+        [Header("Debug")]
+        public bool ShowRaycasts = true;
 
+        [Header("Properties")]
         public CharacterActions[] Players;
 
         public Transform[] SpawnPoints;
 
         public Transform RespawnPoint;
+
+        public Tilemap GroundMap;
+
+        public LayerMask GroundLayer;
+        public LayerMask PlayerLayer;
 
         public CharacterActions GetPlayer(PlayerInfo playerInfo) {
             return Players.Where(e => e.GetComponent<PlayerInfo>() == playerInfo).FirstOrDefault();

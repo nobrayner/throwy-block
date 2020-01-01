@@ -10,14 +10,11 @@ namespace ThrowyBlock.Events {
         Transform Character;
         Sprite BlockSprite;
 
-        Vector3 Scale = new Vector3(0.8f, 0.8f, 1f);
-
         public override void Execute() {
             var spawnPosition = Character.transform.position;
 
             var projectile = GameObject.Instantiate(Projectile);
             projectile.transform.position = spawnPosition + new Vector3(ThrowDirection.x, ThrowDirection.y);
-            projectile.transform.localScale = Scale;
             projectile.GetComponent<SpriteRenderer>().sprite = BlockSprite;
 
             // Throw block

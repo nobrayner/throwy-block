@@ -7,7 +7,6 @@ using UnityEngine.Tilemaps;
 
 namespace ThrowyBlock.Mechanics {
     public class CharacterActions : MonoBehaviour {
-        public bool showRaycasts = true;
         public bool ControlEnabled = true;
 
         [Header("Status - Movement")]
@@ -59,7 +58,7 @@ namespace ThrowyBlock.Mechanics {
 
         [Tooltip("The distance from the ground that counts as being grounded")]
         public float GroundDistance = .2f;
-        public LayerMask GroundLayer;
+        [ReadOnly] public LayerMask GroundLayer;
 
 
         [Header("Components - Loaded on Start")]
@@ -92,6 +91,8 @@ namespace ThrowyBlock.Mechanics {
             flashMonocleParamHash = Animator.StringToHash("FlashMonocle");
 
             originalXScale = transform.localScale.x;
+
+            GroundLayer = model.GroundLayer;
 
             //health = GetComponent<Health>();
             //audioSource = GetComponent<AudioSource>();
@@ -307,7 +308,7 @@ namespace ThrowyBlock.Mechanics {
             RaycastHit2D hit = Physics2D.Raycast(pos + offset, rayDirection, length, mask);
 
             //If we want to show debug raycasts in the scene...
-            if(showRaycasts) {
+            if (model.ShowRaycasts) {
                 //...determine the color based on if the raycast hit...
                 Color color = hit ? Color.red : Color.green;
                 //...and draw the ray in the scene view
