@@ -3,11 +3,13 @@ using ThrowyBlock.Model;
 using ThrowyBlock.Core;
 using ThrowyBlock.UnityEditor;
 using UnityEngine.Tilemaps;
+using ThrowyBlock.Events;
 
 namespace ThrowyBlock.Mechanics {
     public class Projectile : MonoBehaviour {
         [Header("Projectile Properties")]
-        public float KnockBackForce;
+        public float KnockBackModifier;
+        public float StunDuration;
         [ReadOnly] public bool IsGroundAbove;
 
         [Header("Components - Loaded on Start")]
@@ -36,12 +38,22 @@ namespace ThrowyBlock.Mechanics {
                 return;
 
             if (collidedWithLayer == model.GroundLayer.value) {
+                // Get the position of the block when it collided, and spawn the tile in the tilemap at that position
                 var collisionTilePosition = model.GroundMap.WorldToCell(transform.position);
-
                 model.GroundMap.SetTile(collisionTilePosition, GetTile());
             } else if (collidedWithLayer == model.PlayerLayer.value) {
-                // TODO: Knockback player
-                Debug.Log("Player was hit!");
+
+                //!!!!!!!!! THIS IS NOT WORKING !!!!!!!!!//
+
+                // Knockback the player, and disable control (hit stun)
+                var knockBackForce = GetComponent<Rigidbody2D>().velocity.normalized * KnockBackModifier;
+                var player = collision.gameObject.GetComponent<CharacterActions>();
+
+                if (player != null) {
+                    player.AddForce(knockBackForce);
+                    player.ControlEnabled = false;
+                    Simulation.Schedule<EnablePlayerInput>(StunDuration).SetPlayer(player);
+                }
             }
 
             Destroy(transform.gameObject);

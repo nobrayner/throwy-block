@@ -31,8 +31,6 @@ namespace ThrowyBlock.Mechanics {
         //public AudioClip ouchAudio;
         //public AudioSource audioSource;
 
-        //public Health health;
-
 
         [Header("Movement Properties")]
         public float Speed = 4f;
@@ -63,6 +61,7 @@ namespace ThrowyBlock.Mechanics {
 
         [Header("Components - Loaded on Start")]
         [ReadOnly] public Animator Animator;
+        [ReadOnly] public SpriteRenderer SpriteRenderer;
         [ReadOnly] public Rigidbody2D Rigidbody;
         [ReadOnly] public BoxCollider2D BodyCollider;
         [ReadOnly] public PlayerInput Input;
@@ -94,8 +93,8 @@ namespace ThrowyBlock.Mechanics {
 
             GroundLayer = model.GroundLayer;
 
-            //health = GetComponent<Health>();
             //audioSource = GetComponent<AudioSource>();
+            SpriteRenderer = GetComponent<SpriteRenderer>();
             Animator = GetComponent<Animator>();
             Rigidbody = GetComponent<Rigidbody2D>();
             BodyCollider = GetComponent<BoxCollider2D>();
@@ -288,7 +287,7 @@ namespace ThrowyBlock.Mechanics {
             TargetVelocity *= 0;
         }
 
-        void AddForce(Vector2 force) {
+        public void AddForce(Vector2 force) {
             TargetVelocity += force;
         }
 
