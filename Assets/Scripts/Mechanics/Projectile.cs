@@ -37,11 +37,7 @@ namespace ThrowyBlock.Mechanics {
             if (IsGroundAbove)
                 return;
 
-            if (collidedWithLayer == model.GroundLayer.value) {
-                // Get the position of the block when it collided, and spawn the tile in the tilemap at that position
-                var collisionTilePosition = model.GroundMap.WorldToCell(transform.position);
-                model.GroundMap.SetTile(collisionTilePosition, GetTile());
-            } else if (collidedWithLayer == model.PlayerLayer.value) {
+            if (collidedWithLayer == model.PlayerLayer.value) {
 
                 //!!!!!!!!! THIS IS NOT WORKING !!!!!!!!!//
 
@@ -54,6 +50,12 @@ namespace ThrowyBlock.Mechanics {
                     player.ControlEnabled = false;
                     Simulation.Schedule<EnablePlayerInput>(StunDuration).SetPlayer(player);
                 }
+            } else if (collidedWithLayer == model.DeathLayer.value) {
+                // Do nothing
+            } else {
+                // Get the position of the block when it collided, and spawn the tile in the tilemap at that position
+                var collisionTilePosition = model.GroundMap.WorldToCell(transform.position);
+                model.GroundMap.SetTile(collisionTilePosition, GetTile());
             }
 
             Destroy(transform.gameObject);
