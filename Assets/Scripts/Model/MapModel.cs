@@ -20,6 +20,7 @@ namespace ThrowyBlock.Model {
 
         public LayerMask GroundLayer;
         public LayerMask PlayerLayer;
+        public LayerMask DeathLayer;
 
         public CharacterActions GetPlayer(PlayerInfo playerInfo) {
             return Players.Where(e => e.GetComponent<PlayerInfo>() == playerInfo).FirstOrDefault();
