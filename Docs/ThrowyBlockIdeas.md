@@ -80,7 +80,7 @@
 
 ## Story
 
-Characters
+### Characters
 
 | Name | Description |
 |------|-------------|
@@ -89,13 +89,13 @@ Characters
 | Earl | A cute and loveably boy. Earl lives in a small log cabin in the mountains. |
 | Stahv | A smart and pragmatic girl. |
 | Doc | A ruggard old man who doesn't look like a doctor, but knows a thing or two about medicine. |
-| King Harry | Pompuis. Amenable. Opiniated. | 
+| King Harry | Pompuis. Amenable. Opiniated. |
 | Tabit | A sceary monster created by Lord Silgourmon. |
-| Tibat | The name of the alternative form that a Tabit can transform into at any time. | 
-| Lord Silgourmon | A evil sourcer. Lord Silgourmon searches for the Block of Power. |
+| Tibat | The name of the alternative form that a Tabit can transform into at any time. |
+| Lord Silgourmon | A evil sorcerer. Lord Silgourmon searches for the Block of Power. |
 | Jeferee | The judge in King Harry's court and is a member of the Creed of Block Keepers. |
 
-Locations
+### Locations
 
 | Name | Description |
 |------|-------------|
@@ -105,7 +105,7 @@ Locations
 | The Capital | On another continent. Access is via ship. |
 | Port A | Located on the same continent as the mountain. Very rich from trading. |
 | Port B | Located on the same continent as the Capital. |
-| The Creed's Monastary | Located at the top of Mount Aieris. |
+| The Creed's Monastery | Located at the top of Mount Aieris. |
 
 ### Game Storyline
 
