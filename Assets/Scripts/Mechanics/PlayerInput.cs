@@ -7,8 +7,9 @@ namespace ThrowyBlock.Mechanics {
         [ReadOnly] public Vector2 DirectionVector;
         [ReadOnly] public Vector2 NormalizedDirection;
         [ReadOnly] public bool JumpPressed;
-        [ReadOnly] public bool PickupBlockPressed;
-        [ReadOnly] public bool DeflectPressed;
+        [ReadOnly] public bool PickupPressed;
+        [ReadOnly] public bool ThrowPressed;
+        [ReadOnly] public bool PunchPressed;
         [HideInInspector] public PlayerInfo PlayerInfo;
 
         float Horizontal;
@@ -48,8 +49,9 @@ namespace ThrowyBlock.Mechanics {
             DirectionVector = Vector2.zero;
 
             JumpPressed = false;
-            PickupBlockPressed = false;
-            DeflectPressed = false;
+            PickupPressed = false;
+            ThrowPressed = false;
+            PunchPressed = false;
 
             // Reset clear flag
             readyToClear = false;
@@ -69,8 +71,9 @@ namespace ThrowyBlock.Mechanics {
             DirectionVector = new Vector2(Horizontal, Vertical);
 
             JumpPressed = JumpPressed || Input.GetButtonDown("Jump" + PlayerInfo.PlayerNumber);
-            PickupBlockPressed = PickupBlockPressed || Input.GetButtonDown("PickUp" + PlayerInfo.PlayerNumber);
-            DeflectPressed = DeflectPressed || Input.GetButtonDown("Punch" + PlayerInfo.PlayerNumber);
+            PickupPressed = PickupPressed || Input.GetButtonDown("PickUp" + PlayerInfo.PlayerNumber);
+            ThrowPressed = ThrowPressed || Input.GetButtonDown("Throw" + PlayerInfo.PlayerNumber);
+            PunchPressed = PunchPressed || Input.GetButtonDown("Punch" + PlayerInfo.PlayerNumber);
         }
     }
 }

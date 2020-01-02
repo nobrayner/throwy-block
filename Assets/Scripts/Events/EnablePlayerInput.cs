@@ -3,13 +3,13 @@ using ThrowyBlock.Mechanics;
 
 namespace ThrowyBlock.Events {
     public class EnablePlayerInput : Simulation.Event<EnablePlayerInput> {
-        CharacterActions Player;
+        PlayerActions Player;
 
         public override void Execute() {
             Player.ControlEnabled = true;
         }
 
-        public void SetPlayer(CharacterActions player) {
+        public void SetPlayer(PlayerActions player) {
             Player = player;
         }
     }

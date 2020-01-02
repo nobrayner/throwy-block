@@ -4,13 +4,13 @@ using ThrowyBlock.Model;
 
 namespace ThrowyBlock.Events {
     public class SeePlayer : Simulation.Event<SeePlayer> {
-        CharacterActions Player;
+        PlayerActions Player;
 
         public override void Execute() {
-            Player.SpriteRenderer.enabled = true;
+            Player.Character.SpriteRenderer.enabled = true;
         }
 
-        public void SetPlayer(CharacterActions player) {
+        public void SetPlayer(PlayerActions player) {
             Player = player;
         }
     }

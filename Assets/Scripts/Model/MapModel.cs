@@ -10,7 +10,7 @@ namespace ThrowyBlock.Model {
         public bool ShowRaycasts = true;
 
         [Header("Properties")]
-        public CharacterActions[] Players;
+        public PlayerActions[] Players;
 
         public Transform[] SpawnPoints;
 
@@ -22,7 +22,7 @@ namespace ThrowyBlock.Model {
         public LayerMask PlayerLayer;
         public LayerMask DeathLayer;
 
-        public CharacterActions GetPlayer(PlayerInfo playerInfo) {
+        public PlayerActions GetPlayer(PlayerInfo playerInfo) {
             return Players.Where(e => e.GetComponent<PlayerInfo>() == playerInfo).FirstOrDefault();
         }
     }

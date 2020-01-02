@@ -4,13 +4,13 @@ using ThrowyBlock.Model;
 
 namespace ThrowyBlock.Events {
     public class DisablePlayerInput : Simulation.Event<DisablePlayerInput> {
-        CharacterActions Player;
+        PlayerActions Player;
 
         public override void Execute() {
             Player.ControlEnabled = false;
         }
 
-        public void SetPlayer(CharacterActions player) {
+        public void SetPlayer(PlayerActions player) {
             Player = player;
         }
     }

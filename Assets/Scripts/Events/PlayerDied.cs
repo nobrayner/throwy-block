@@ -4,7 +4,7 @@ using ThrowyBlock.Model;
 
 namespace ThrowyBlock.Events {
     public class PlayerDied : Simulation.Event<PlayerDied> {
-        CharacterActions Player;
+        PlayerActions Player;
 
         readonly MapModel model = Simulation.GetModel<MapModel>();
 
@@ -15,7 +15,7 @@ namespace ThrowyBlock.Events {
             Simulation.Schedule<SpawnPlayer>(0.3f).SetPlayer(Player);
         }
 
-        public void SetPlayer(CharacterActions player) {
+        public void SetPlayer(PlayerActions player) {
             Player = player;
         }
     }

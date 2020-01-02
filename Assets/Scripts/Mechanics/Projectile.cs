@@ -43,10 +43,10 @@ namespace ThrowyBlock.Mechanics {
 
                 // Knockback the player, and disable control (hit stun)
                 var knockBackForce = GetComponent<Rigidbody2D>().velocity.normalized * KnockBackModifier;
-                var player = collision.gameObject.GetComponent<CharacterActions>();
+                var player = collision.gameObject.GetComponent<PlayerActions>();
 
                 if (player != null) {
-                    player.AddForce(knockBackForce);
+                    player.SetForce(knockBackForce);
                     player.ControlEnabled = false;
                     Simulation.Schedule<EnablePlayerInput>(StunDuration).SetPlayer(player);
                 }

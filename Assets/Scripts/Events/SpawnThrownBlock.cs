@@ -11,7 +11,7 @@ namespace ThrowyBlock.Events {
         Sprite BlockSprite;
 
         public override void Execute() {
-            var spawnPosition = Character.transform.position;
+            var spawnPosition = Character.position;
 
             var projectile = GameObject.Instantiate(Projectile);
             projectile.transform.position = spawnPosition + new Vector3(ThrowDirection.x, ThrowDirection.y);
