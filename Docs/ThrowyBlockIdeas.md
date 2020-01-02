@@ -77,3 +77,51 @@
   - Varies based on the character
   - Consumes the whole meter/inventory
   - Slight variations based on what blocks are in the inventory
+
+## Story
+
+### Characters
+
+| Name | Description |
+|------|-------------|
+| Bill | A robot. Bill is an assistant in Percy's lab. |
+| Percy | A physicist. Percy is particularly interested in dark matter. |
+| Earl | A cute and loveably boy. Earl lives in a small log cabin in the mountains. |
+| Stahv | A smart and pragmatic girl. |
+| Doc | A ruggard old man who doesn't look like a doctor, but knows a thing or two about medicine. |
+| King Harry | Pompuis. Amenable. Opiniated. |
+| Tabit | A sceary monster created by Lord Silgourmon. |
+| Tibat | The name of the alternative form that a Tabit can transform into at any time. |
+| Lord Silgourmon | A evil sorcerer. Lord Silgourmon searches for the Block of Power. |
+| Jeferee | The judge in King Harry's court and is a member of the Creed of Block Keepers. |
+
+### Locations
+
+| Name | Description |
+|------|-------------|
+| Percy's Village | Located high on the mountains. |
+| Stahv's Village | Located at the base of the mountains. |
+| Lord Silgourmon's Lair | Located on the top of Mount Goom. |
+| The Capital | On another continent. Access is via ship. |
+| Port A | Located on the same continent as the mountain. Very rich from trading. |
+| Port B | Located on the same continent as the Capital. |
+| The Creed's Monastery | Located at the top of Mount Aieris. |
+
+### Game Storyline
+
+Chapters
+- Prelude: Lord Silgourmon steals the Block of Shadows and is banashed from the Creed of Block Keepers.
+- Earl kills a Tabit, then rescues his village.
+- Earl convinces Doc to travel with him to visit King Harry.
+- Earl and Doc encounter more monsters and help Stahv rescue a village.
+- Doc and Earl visit King Harry, who does not believe in the monsters.
+- Tabits and Tibats attack the capital.
+- Earl and Doc rescue Percy and Bill.
+- Stahv's village is destroyed by Tabits. Stahv is the only survivor.
+- Earl, Doc, Percy, and Bill travel to the port to find a shadow detector.
+- Stahv joins Earl, Doc, Percy, and Bill on their quest to defeat Lord Silgourmon.
+- Earl, Doc, Percy, Bill, and Stahv Find Lord Silgourmon's lair.
+- Earl, Doc, Percy, Bill and Stahv destroy Lord Silgourmon and retrieve the Block of Power.
+- Earl, Doc, Percy, Bill and Stahv return the Block of Power to Jeferee.
+- The End
+
