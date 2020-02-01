@@ -86,11 +86,11 @@
 |------|-------------|
 | Bill | A robot. Bill is an assistant in Percy's lab. |
 | Percy | A physicist. Percy is particularly interested in dark matter. |
-| Earl | A cute and loveably boy. Earl lives in a small log cabin in the mountains. |
+| Earl | A cute and loveable boy. Earl lives in a small log cabin in the mountains. |
 | Stahv | A smart and pragmatic girl. |
 | Doc | A ruggard old man who doesn't look like a doctor, but knows a thing or two about medicine. |
-| King Harry | Pompuis. Amenable. Opiniated. |
-| Tabit | A sceary monster created by Lord Silgourmon. |
+| King Harry | Pompous. Amenable. Opinioated. |
+| Tabit | A scary monster created by Lord Silgourmon. |
 | Tibat | The name of the alternative form that a Tabit can transform into at any time. |
 | Lord Silgourmon | A evil sorcerer. Lord Silgourmon searches for the Block of Power. |
 | Jeferee | The judge in King Harry's court and is a member of the Creed of Block Keepers. |
